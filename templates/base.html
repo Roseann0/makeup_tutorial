@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Make-up Tutorials</title>
+  <style>
+    /* CSS Variables for consistent theming - LIGHT PINK THEME */
+    :root {
+        --primary-color: #c02fe4ff;
+        --secondary-color: #a52de6ff;
+        --accent-color: #cd6af4ff;
+        --light-color: #fff5f7;
+        --dark-color: #8b5d6e;
+        --success-color: #ffb6c1;
+        --warning-color: #161616ff;
+        --text-color: #5a4a4f;
+        --text-light: #8b7a7f;
+        --border-radius: 8px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+    }
+
+    /* Base Styles */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--light-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    a {
+        text-decoration: none;
+        color: var(--primary-color);
+        transition: var(--transition);
+    }
+
+    a:hover {
+        color: var(--secondary-color);
+    }
+
+    .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .btn:hover {
+        background-color: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: var(--box-shadow);
+        color: white;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-outline:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Header Styles */
+    header {
+        background-color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .nav-links {
+        display: flex;
+        list-style: none;
+        align-items: center;
+    }
+
+    .nav-links li {
+        margin-left: 20px;
+    }
+
+    .nav-links a {
+        color: var(--text-color);
+        font-weight: 500;
+        padding: 5px 10px;
+    }
+
+    .nav-links a:hover {
+        color: var(--primary-color);
+    }
+
+    .nav-links a.active {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    /* Make the Create Account button stand out */
+    .nav-links .btn {
+        margin-left: 10px;
+    }
+
+    .mobile-menu-btn {
+        display: none;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--text-color);
+    }
+
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        max-width: 700px;
+        margin: 0 auto 30px;
+        opacity: 0.9;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    /* Main Content */
+    .main-content {
+        padding: 60px 0;
+        flex: 1;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-title h2 {
+        font-size: 2rem;
+        color: var(--dark-color);
+        margin-bottom: 15px;
+    }
+
+    .section-title p {
+        color: var(--text-light);
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .card {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-img {
+        height: 200px;
+        background-color: var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+
+    .card h3 {
+        margin-bottom: 10px;
+        color: var(--dark-color);
+    }
+
+    .card p {
+        color: var(--text-light);
+        margin-bottom: 15px;
+    }
+
+    /* Form Styles */
+    .form-container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(255, 133, 162, 0.2);
+    }
+
+    .form-footer {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    /* Tutorial Page Styles */
+    .tutorial-content {
+        display: flex;
+        gap: 30px;
+    }
+
+    .tutorial-sidebar {
+        flex: 0 0 250px;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 20px;
+        box-shadow: var(--box-shadow);
+    }
+
+    .tutorial-main {
+        flex: 1;
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 30px;
+        box-shadow: var(--box-shadow);
+    }
+
+    .tutorial-nav {
+        list-style: none;
+    }
+
+    .tutorial-nav li {
+        margin-bottom: 10px;
+    }
+
+    .tutorial-nav a {
+        display: block;
+        padding: 10px;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+        color: var(--text-color);
+    }
+
+    .tutorial-nav a:hover, .tutorial-nav a.active {
+        background-color: rgba(255, 133, 162, 0.1);
+        color: var(--primary-color);
+    }
+
+    /* Alert styles for flash messages */
+    .alert {
+        padding: 15px 20px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .close-btn {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.7;
+    }
+
+    .close-btn:hover {
+        opacity: 1;
+    }
+
+    /* Footer */
+    footer {
+        background-color: var(--dark-color);
+        color: white;
+        padding: 50px 0 20px;
+        margin-top: auto;
+    }
+
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .footer-column h3 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .footer-links {
+        list-style: none;
+    }
+
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+
+    .footer-links a {
+        color: #adb5bd;
+        transition: var(--transition);
+    }
+
+    .footer-links a:hover {
+        color: white;
+    }
+
+    .copyright {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: #adb5bd;
+        font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .navbar {
+            flex-wrap: wrap;
+        }
+
+        .nav-links {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .nav-links.show {
+            display: flex;
+        }
+
+        .nav-links li {
+            margin: 10px 0;
+            margin-left: 0;
+        }
+
+        .mobile-menu-btn {
+            display: block;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+        }
+
+        .hero p {
+            font-size: 1rem;
+        }
+
+        .tutorial-content {
+            flex-direction: column;
+        }
+
+        .tutorial-sidebar {
+            flex: none;
+        }
+
+        .card-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-buttons .btn {
+            width: 200px;
+        }
+    }
+  </style>
+</head>
+<body>
+<!-- Header with custom CSS styling -->
+<header>
+  <div class="container">
+    <nav class="navbar">
+      <a href="{{ url_for('index') }}" class="logo">Make-up Tutorials</a>
+      <button class="mobile-menu-btn">☰</button>
+      <ul class="nav-links">
+        {% if session.get('user_id') %}
+          <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
+          <li><a href="{{ url_for('tutorial') }}" class="{% if request.endpoint == 'tutorial' %}active{% endif %}">Tutorial</a></li>
+          <li><a href="{{ url_for('description') }}" class="{% if request.endpoint == 'description' %}active{% endif %}">Description</a></li>
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
+          <li><a href="{{ url_for('register') }}" class="btn">Create Account</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- Main Content -->
+<main class="main-content">
+  <div class="container">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }}">
+            {{ msg }}
+            <button type="button" class="close-btn" onclick="this.parentElement.style.display='none'">×</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>Make-up Tutorials</h3>
+        <ul class="footer-links">
+          <li><a href="{{ url_for('index') }}">Home</a></li>
+          <li><a href="{{ url_for('description') }}">About</a></li>
+          <li><a href="{{ url_for('tutorial') }}">Tutorials</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Support</h3>
+        <ul class="footer-links">
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-column">
+        <h3>Legal</h3>
+        <ul class="footer-links">
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="copyright">
+      &copy; 2025 Make-up Tutorials. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu toggle
+  document.querySelector('.mobile-menu-btn')?.addEventListener('click', function() {
+    document.querySelector('.nav-links').classList.toggle('show');
+  });
+</script>
+</body>
+</html>

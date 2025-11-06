@@ -1,0 +1,5 @@
+lask>=3.0
+Flask-SQLAlchemy>=3.0
+python-dotenv
+pymysql
+Werkzeug

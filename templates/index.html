@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>Welcome to Make-up Tutorials</h1>
+        <p>Discover beauty looks and tutorials suited to your skin tone and style.</p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('register') }}" class="btn">Create Account</a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline">Log In</a>
+        </div>
+    </div>
+</section>
+
+<div class="main-content">
+    <div class="container">
+        <div class="section-title">
+            <h2>Why Choose Our Platform?</h2>
+            <p>We provide personalized makeup guidance for everyone</p>
+        </div>
+
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-img">Personalized</div>
+                <div class="card-content">
+                    <h3>Personalized Recommendations</h3>
+                    <p>Get makeup tips tailored to your skin tone and preferences</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img">Expert</div>
+                <div class="card-content">
+                    <h3>Expert Tutorials</h3>
+                    <p>Learn from step-by-step guides created by beauty experts</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-img">Community</div>
+                <div class="card-content">
+                    <h3>Beauty Community</h3>
+                    <p>Join a community of makeup enthusiasts and share your journey</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

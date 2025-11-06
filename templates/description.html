@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-title">
+    <h2>Make-up Descriptions and Tips</h2>
+    <p>Expert advice for your beauty journey</p>
+</div>
+
+<div class="card">
+    <div class="card-content">
+        <h3>Skin Tones</h3>
+        <ul>
+            {% for tone in suggestions.tones %}
+                <li>{{ tone }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 30px;">
+    <div class="card-content">
+        <h3>Make-up Tips</h3>
+        <ul>
+            {% for tip in suggestions.tips %}
+                <li>{{ tip }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

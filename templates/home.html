@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-title">
+    <h2>Welcome, {{ name }}</h2>
+    <p>Explore tutorials and beauty recommendations below</p>
+</div>
+
+<div class="card-grid">
+    <div class="card">
+        <div class="card-img">Tutorials</div>
+        <div class="card-content">
+            <h3>Make-up Tutorials</h3>
+            <p>Step-by-step guides for various makeup looks and techniques</p>
+            <a href="{{ url_for('tutorial') }}" class="btn btn-outline">View Tutorials</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-img">Tips</div>
+        <div class="card-content">
+            <h3>Make-up Descriptions</h3>
+            <p>Learn about skin tones and get expert makeup tips</p>
+            <a href="{{ url_for('description') }}" class="btn btn-outline">Get Tips</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
