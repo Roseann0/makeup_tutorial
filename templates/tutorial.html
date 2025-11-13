@@ -9,23 +9,24 @@
     <div class="tutorial-sidebar">
         <h3>Categories</h3>
         <ul class="tutorial-nav">
-            <li><a href="#" class="active">All Tutorials</a></li>
-            <li><a href="#">Everyday Looks</a></li>
-            <li><a href="#">Evening Looks</a></li>
-            <li><a href="#">Special Occasions</a></li>
-            <li><a href="#">Beginner Friendly</a></li>
+            {% for cat in categories %}
+            <li><a href="{{ url_for('tutorial', category=cat) }}" class="{% if cat == selected_category %}active{% endif %}">{{ cat }}</a></li>
+            {% endfor %}
         </ul>
     </div>
 
     <div class="tutorial-main">
         <div class="card-grid">
-            {% for t in tutorials %}
+            {% for tutorial in tutorials %}
             <div class="card">
-                <div class="card-img">{{ t.title[:2] }}</div>
+                <div class="card-img">{{ tutorial.title[:2] }}</div>
                 <div class="card-content">
-                    <h3>{{ t.title }}</h3>
-                    <p>{{ t.desc }}</p>
-                    <a href="#" class="btn btn-outline">View Tutorial</a>
+                    <h3>{{ tutorial.title }}</h3>
+                    <p>{{ tutorial.description }}</p>
+                    <p><strong>Category:</strong> {{ tutorial.category }}</p>
+                    <p><strong>Difficulty:</strong> {{ tutorial.difficulty }}</p>
+                    <p><strong>Duration:</strong> {{ tutorial.duration }} minutes</p>
+                    <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="btn btn-outline">View Tutorial</a>
                 </div>
             </div>
             {% endfor %}

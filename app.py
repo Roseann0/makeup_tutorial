@@ -5,7 +5,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from functools import wraps
-from model import db, User, Tutorial, Product, History, Purchase, Cart  # make sure your file is named model.py
+
+from model import db, History, Product, Tutorial, User, Cart, Purchase
 
 # ----------------------------------------------------------------------
 # Load environment variables from .env
@@ -17,31 +18,18 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'dev_secret_key')
 
 # ----------------------------------------------------------------------
-# MySQL Database Configuration (for XAMPP or other MySQL server)
+# SQLAlchemy Database Configuration
 # ----------------------------------------------------------------------
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@"
-    f"{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://rose:makeuptutorial@127.0.0.1/makeup_tutorial'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize SQLAlchemy
 db.init_app(app)
 
-# ----------------------------------------------------------------------
-# Validation Regex
-# ----------------------------------------------------------------------
 EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+$'
 PASSWORD_REGEX = r'^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$'
 
-# ----------------------------------------------------------------------
-# Create tables (for Flask 3.0+)
-# ----------------------------------------------------------------------
 with app.app_context():
     db.create_all()
 
-# ----------------------------------------------------------------------
-# Login Required Decorator
 # ----------------------------------------------------------------------
 def login_required(f):
     @wraps(f)
@@ -52,18 +40,15 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ----------------------------------------------------------------------
-# Routes
-# ----------------------------------------------------------------------
-
 @app.route('/')
 def index():
+    if 'user_id' in session:
+        return redirect(url_for('home'))
     return render_template('index.html')
 
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    # If already logged in
     if 'user_id' in session:
         flash('You are already logged in.', 'info')
         return redirect(url_for('home'))
@@ -72,7 +57,6 @@ def register():
         name = request.form.get('name', '').strip().lower()
         email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
-
         # Validate email
         if not re.match(EMAIL_REGEX, email):
             flash('Invalid email address format.', 'danger')

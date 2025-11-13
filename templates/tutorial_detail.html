@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-title">
+    <h2>{{ tutorial.title }}</h2>
+    <p>{{ tutorial.description }}</p>
+</div>
+
+<div class="tutorial-detail">
+    <div class="tutorial-info">
+        <p><strong>Category:</strong> {{ tutorial.category }}</p>
+        <p><strong>Difficulty:</strong> {{ tutorial.difficulty }}</p>
+        <p><strong>Duration:</strong> {{ tutorial.duration }} minutes</p>
+    </div>
+
+    <div class="tutorial-steps">
+        <h3>Step-by-Step Guide</h3>
+        <ol>
+            {% for step in steps %}
+            <li>{{ step }}</li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <div class="tutorial-actions">
+        <a href="{{ url_for('tutorial') }}" class="btn btn-outline">Back to Tutorials</a>
+    </div>
+</div>
+{% endblock %}

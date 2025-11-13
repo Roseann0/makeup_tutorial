@@ -489,6 +489,9 @@
           <li><a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a></li>
           <li><a href="{{ url_for('tutorial') }}" class="{% if request.endpoint == 'tutorial' %}active{% endif %}">Tutorial</a></li>
           <li><a href="{{ url_for('description') }}" class="{% if request.endpoint == 'description' %}active{% endif %}">Description</a></li>
+          <li><a href="{{ url_for('shop') }}" class="{% if request.endpoint == 'shop' %}active{% endif %}">Shop</a></li>
+          <li><a href="{{ url_for('cart') }}" class="{% if request.endpoint == 'cart' %}active{% endif %}">Cart{% if cart_count %} ({{ cart_count }}){% endif %}</a></li>
+          <li><a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a></li>
           <li><a href="{{ url_for('logout') }}">Logout</a></li>
         {% else %}
           <li><a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Login</a></li>
@@ -520,35 +523,7 @@
 
 <!-- Footer -->
 <footer>
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-column">
-        <h3>Make-up Tutorials</h3>
-        <ul class="footer-links">
-          <li><a href="{{ url_for('index') }}">Home</a></li>
-          <li><a href="{{ url_for('description') }}">About</a></li>
-          <li><a href="{{ url_for('tutorial') }}">Tutorials</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h3>Support</h3>
-        <ul class="footer-links">
-          <li><a href="#">Help Center</a></li>
-          <li><a href="#">Contact Us</a></li>
-          <li><a href="#">FAQ</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-column">
-        <h3>Legal</h3>
-        <ul class="footer-links">
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Service</a></li>
-          <li><a href="#">Cookie Policy</a></li>
-        </ul>
-      </div>
-    </div>
+ 
 
     <div class="copyright">
       &copy; 2025 Make-up Tutorials. All rights reserved.
