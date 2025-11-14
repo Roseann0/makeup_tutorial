@@ -1,61 +1,177 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="section-title">
-    <h2>User Profile</h2>
+    <h2>Your Profile</h2>
     <p>View your account details and activity history</p>
 </div>
 
-<div class="profile-content">
-    <div class="profile-info">
-        <div class="card">
-            <div class="card-content">
-                <h3>Account Information</h3>
-                <p><strong>Name:</strong> {{ user.name }}</p>
-                <p><strong>Email:</strong> {{ user.email }}</p>
-                <p><strong>Member since:</strong> {{ user.created_at.strftime('%Y-%m-%d') }}</p>
-            </div>
+<div class="profile-tabs">
+    <button class="tab-btn active" onclick="showTab('profile-info')">Profile Info</button>
+    <button class="tab-btn" onclick="showTab('recent-activity')">Recent Activity</button>
+    <button class="tab-btn" onclick="showTab('purchase-history')">Purchase History</button>
+</div>
+
+<div id="profile-info" class="tab-content active">
+    <div class="card">
+        <div class="card-content">
+            <h3>Account Information</h3>
+            <p><strong>Name:</strong> {{ user.name }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Member since:</strong> {{ user.created_at.strftime('%Y-%m-%d') }}</p>
+
+            <button id="edit-btn" class="btn btn-primary" style="margin-top: 20px;">Edit Profile</button>
         </div>
     </div>
 
-    <div class="profile-activity">
-        <div class="card">
-            <div class="card-content">
-                <h3>Recent Activity</h3>
-                {% if history %}
-                    <div class="activity-list">
-                        {% for item in history %}
-                            <div class="activity-item">
-                                <p>{{ item.action }}</p>
-                                <small>{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                                {% if item.tutorial_type and item.tutorial_type != 'System' %}
-                                    <small>Type: {{ item.tutorial_type }}</small>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No activity history yet.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="card" style="margin-top: 30px;">
-            <div class="card-content">
-                <h3>Purchase History</h3>
-                {% if purchases %}
-                    <div class="purchase-list">
-                        {% for purchase in purchases %}
-                            <div class="purchase-item">
-                                <p><strong>{{ purchase.product.name }}</strong> - Quantity: {{ purchase.quantity }} - Total: ₱{{ "%.2f"|format(purchase.total_price) }}</p>
-                                <small>{{ purchase.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p>No purchases yet.</p>
-                {% endif %}
-            </div>
+    <div class="card" id="edit-form" style="display: none; margin-top: 20px;">
+        <div class="card-content">
+            <h3>Update Profile</h3>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" value="{{ user.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">New Password (leave blank to keep current):</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                <button type="submit" class="btn btn-success">Update Profile</button>
+                <button type="button" id="cancel-btn" class="btn btn-secondary">Cancel</button>
+            </form>
         </div>
     </div>
 </div>
+
+<div id="recent-activity" class="tab-content">
+    <div class="card">
+        <div class="card-content">
+            <h3>Recent Activity</h3>
+            {% if history %}
+                <div class="activity-list">
+                    {% for item in history %}
+                        <div class="activity-item">
+                            <p>{{ item.action }}</p>
+                            <small>{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            {% if item.tutorial_type and item.tutorial_type != 'System' %}
+                                <small>Type: {{ item.tutorial_type }}</small>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('delete_history', history_id=item.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this activity?')">Delete</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No activity history yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div id="purchase-history" class="tab-content">
+    <div class="card">
+        <div class="card-content">
+            <h3>Purchase History</h3>
+            {% if purchases %}
+                <div class="purchase-list">
+                    {% for purchase in purchases %}
+                        <div class="purchase-item">
+                            <p><strong>{{ purchase.product.name }}</strong> - Quantity: {{ purchase.quantity }} - Total: ₱{{ "%.2f"|format(purchase.total_price) }}</p>
+                            <small>{{ purchase.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            {% if purchase.rating is not none %}
+                                <small>Rating: {{ purchase.rating }}/5 stars</small>
+                            {% endif %}
+                            {% if purchase.received %}
+                                <small>Received: Yes</small>
+                            {% else %}
+                                <small>Received: No</small>
+                            {% endif %}
+                            <form method="POST" action="{{ url_for('rate_purchase', purchase_id=purchase.id) }}" style="display: inline;">
+                                <label for="rating-{{ purchase.id }}">Rate (0-5):</label>
+                                <select name="rating" id="rating-{{ purchase.id }}">
+                                    <option value="0" {% if purchase.rating == 0 %}selected{% endif %}>0</option>
+                                    <option value="1" {% if purchase.rating == 1 %}selected{% endif %}>1</option>
+                                    <option value="2" {% if purchase.rating == 2 %}selected{% endif %}>2</option>
+                                    <option value="3" {% if purchase.rating == 3 %}selected{% endif %}>3</option>
+                                    <option value="4" {% if purchase.rating == 4 %}selected{% endif %}>4</option>
+                                    <option value="5" {% if purchase.rating == 5 %}selected{% endif %}>5</option>
+                                </select>
+                                <label for="received-{{ purchase.id }}">
+                                    <input type="checkbox" name="received" id="received-{{ purchase.id }}" {% if purchase.received %}checked{% endif %}> Received
+                                </label>
+                                <button type="submit" class="btn btn-warning btn-sm">Update</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No purchases yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.tab-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0 5px;
+    border-radius: 5px 5px 0 0;
+}
+
+.tab-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+</style>
+
+<script>
+function showTab(tabId) {
+    // Hide all tab contents
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => content.classList.remove('active'));
+
+    // Remove active class from all tab buttons
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    tabButtons.forEach(button => button.classList.remove('active'));
+
+    // Show the selected tab content
+    document.getElementById(tabId).classList.add('active');
+
+    // Add active class to the clicked button
+    event.target.classList.add('active');
+}
+
+document.getElementById('edit-btn').addEventListener('click', function() {
+    document.getElementById('edit-form').style.display = 'block';
+    this.style.display = 'none';
+});
+
+document.getElementById('cancel-btn').addEventListener('click', function() {
+    document.getElementById('edit-form').style.display = 'none';
+    document.getElementById('edit-btn').style.display = 'block';
+});
+</script>
 {% endblock %}

@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Admin Dashboard</h1>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ users|length }}</h5>
+                    <p class="card-text">Total Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ products|length }}</h5>
+                    <p class="card-text">Total Products</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ tutorials|length }}</h5>
+                    <p class="card-text">Total Tutorials</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ purchases|length }}</h5>
+                    <p class="card-text">Total Purchases</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Links -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Management Tools</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin_users') }}" class="btn btn-primary btn-lg w-100 mb-3">
+                                <i class="fas fa-users"></i> Manage Users
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin_products') }}" class="btn btn-success btn-lg w-100 mb-3">
+                                <i class="fas fa-shopping-cart"></i> Manage Products
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('admin_tutorials') }}" class="btn btn-info btn-lg w-100 mb-3">
+                                <i class="fas fa-book"></i> Manage Tutorials
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Recent Purchases</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for purchase in purchases[:5] %}
+                            <tr>
+                                <td>{{ purchase.user.name }}</td>
+                                <td>{{ purchase.product.name }}</td>
+                                <td>{{ purchase.quantity }}</td>
+                                <td>${{ "%.2f"|format(purchase.total_price) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Recent Activity</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for history in histories[:5] %}
+                            <tr>
+                                <td>{{ history.user.name }}</td>
+                                <td>{{ history.action }}</td>
+                                <td>{{ history.created_at.strftime('%m/%d %H:%M') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

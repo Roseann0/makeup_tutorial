@@ -8,6 +8,7 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     tutorials = db.relationship('Tutorial', backref='author', lazy=True)
     history = db.relationship('History', backref='user', lazy=True)
@@ -47,7 +48,10 @@ class Purchase(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     total_price = db.Column(db.Float, nullable=False)
+    payment_method = db.Column(db.String(50), nullable=False, default='Cash on Delivery')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    rating = db.Column(db.Integer, nullable=True)  # 0-5 stars
+    received = db.Column(db.Boolean, default=False)
     product = db.relationship('Product', backref='purchases')
 
 class Cart(db.Model):
