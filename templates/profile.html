@@ -100,9 +100,14 @@
                                     <option value="4" {% if purchase.rating == 4 %}selected{% endif %}>4</option>
                                     <option value="5" {% if purchase.rating == 5 %}selected{% endif %}>5</option>
                                 </select>
-                                <label for="received-{{ purchase.id }}">
-                                    <input type="checkbox" name="received" id="received-{{ purchase.id }}" {% if purchase.received %}checked{% endif %}> Received
-                                </label>
+                                <div style="display: inline-block; margin-left: 10px;">
+                                    <label style="margin-right: 10px;">
+                                        <input type="radio" name="received_status" value="received"> Received
+                                    </label>
+                                    <label>
+                                        <input type="radio" name="received_status" value="not_received"> Didn't Receive
+                                    </label>
+                                </div>
                                 <button type="submit" class="btn btn-warning btn-sm">Update</button>
                             </form>
                         </div>

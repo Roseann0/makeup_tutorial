@@ -7,7 +7,7 @@
 
 <div class="cart-content">
     {% if cart_items %}
-    <form action="{{ url_for('checkout') }}" method="post" id="checkout-form">
+    <form action="{{ url_for('checkout') }}" method="post" id="checkout-form" onsubmit="return validateForm()">
         <div class="cart-items">
             {% for item in cart_items %}
             <div class="cart-item">
@@ -20,9 +20,8 @@
                     <p><strong>Subtotal:</strong> ₱{{ "%.2f"|format(item.product.price * item.quantity) }}</p>
                 </div>
                 <div class="cart-item-actions">
-                    <form action="{{ url_for('remove_from_cart', cart_id=item.id) }}" method="post">
-                        <button type="submit" class="btn btn-outline">Remove</button>
-                    </form>
+                    <button type="button" class="btn btn-outline remove-btn" data-cart-id="{{ item.id }}">Remove</button>
+                    <button type="button" class="btn btn-primary checkout-single" data-cart-id="{{ item.id }}">Checkout</button>
                 </div>
             </div>
             {% endfor %}
@@ -38,37 +37,20 @@
                 </div>
                 <div class="form-group">
                     <label for="address">Delivery Address:</label>
-                    <textarea id="address" name="address" rows="3" placeholder="Enter your complete delivery address" required></textarea>
+                    <textarea id="address" name="address" rows="3" placeholder="House No., Street, Barangay, Municipality" required pattern=".*\d+.*" title="Please include house number"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="contact">Contact Number:</label>
-                    <input type="tel" id="contact" name="contact" placeholder="09123456789" required>
+                    <input type="tel" id="contact" name="contact" placeholder="09123456789" required pattern="^09\d{9}$" title="Please enter a valid Philippine mobile number (11 digits starting with 09)">
                 </div>
             </div>
-            <div class="payment-methods">
-                <h4>Select Payment Method:</h4>
-                <div class="payment-options">
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="Cash on Delivery" checked>
-                        <span>Cash on Delivery</span>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="GCash">
-                        <span>GCash</span>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="PayMaya">
-                        <span>PayMaya</span>
-                    </label>
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="Credit Card">
-                        <span>Credit Card</span>
-                    </label>
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary" id="checkout-btn">Checkout Selected Items</button>
+            <button type="button" class="btn btn-primary" id="checkout-btn">Select Items to Checkout</button>
         </div>
     </form>
+    <!-- Hidden remove forms -->
+    {% for item in cart_items %}
+    <form action="{{ url_for('remove_from_cart', cart_id=item.id) }}" method="post" id="remove-form-{{ item.id }}" style="display:none;"></form>
+    {% endfor %}
     {% else %}
     <div class="empty-cart">
         <p>Your cart is empty.</p>
@@ -102,6 +84,7 @@
 
 .cart-item-info input[type="checkbox"] {
     margin-top: 5px;
+    display: none;
 }
 
 .cart-item-info h3 {
@@ -118,6 +101,8 @@
 
 .cart-item-actions {
     flex-shrink: 0;
+    display: flex;
+    gap: 10px;
 }
 
 .cart-total {
@@ -147,53 +132,7 @@
     color: var(--text-light);
 }
 
-.payment-methods {
-    margin-top: 20px;
-}
 
-.payment-methods h4 {
-    margin-bottom: 15px;
-    color: var(--dark-color);
-}
-
-.payment-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-
-.payment-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 15px;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: white;
-}
-
-.payment-option:hover {
-    border-color: var(--primary-color);
-    background-color: rgba(192, 47, 228, 0.05);
-}
-
-.payment-option:has(input[type="radio"]:checked) {
-    border-color: var(--primary-color);
-    background-color: rgba(192, 47, 228, 0.1);
-}
-
-.payment-option input[type="radio"] {
-    margin: 0;
-    accent-color: var(--primary-color);
-}
-
-.payment-option span {
-    font-weight: 500;
-    color: var(--text-color);
-}
 
 #checkout-btn {
     margin-top: 20px;
@@ -201,26 +140,185 @@
 </style>
 
 <script>
+function confirmRemove() {
+    return confirm('Are you sure you want to remove this item from your cart?');
+}
+
+function validateForm() {
+    const nameField = document.getElementById('name');
+    const addressField = document.getElementById('address');
+    const contactField = document.getElementById('contact');
+
+    if (!nameField.value.trim()) {
+        alert('Please enter your full name.');
+        nameField.focus();
+        return false;
+    }
+
+    if (!addressField.value.trim()) {
+        alert('Please enter your delivery address.');
+        addressField.focus();
+        return false;
+    }
+
+    if (!contactField.value.trim()) {
+        alert('Please enter your contact number.');
+        contactField.focus();
+        return false;
+    }
+
+    // Check if address contains a number (house number)
+    if (!/\d/.test(addressField.value)) {
+        alert('Please include a house number in your address.');
+        addressField.focus();
+        return false;
+    }
+
+    // Check if contact number is valid Philippine mobile number
+    if (!/^09\d{9}$/.test(contactField.value)) {
+        alert('Please enter a valid Philippine mobile number (11 digits starting with 09).');
+        contactField.focus();
+        return false;
+    }
+
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const checkboxes = document.querySelectorAll('.item-checkbox');
     const selectedTotal = document.getElementById('selected-total');
     const checkoutBtn = document.getElementById('checkout-btn');
+    const checkoutSingleBtns = document.querySelectorAll('.checkout-single');
+    const removeBtns = document.querySelectorAll('.remove-btn');
+    let selectionMode = false;
+
+    checkoutBtn.addEventListener('click', function() {
+        if (!selectionMode) {
+            // Validate required fields before entering selection mode
+            const nameField = document.getElementById('name');
+            const addressField = document.getElementById('address');
+            const contactField = document.getElementById('contact');
+
+            if (!nameField.value.trim()) {
+                alert('Please enter your full name.');
+                nameField.focus();
+                return;
+            }
+
+            if (!addressField.value.trim()) {
+                alert('Please enter your delivery address.');
+                addressField.focus();
+                return;
+            }
+
+            if (!contactField.value.trim()) {
+                alert('Please enter your contact number.');
+                contactField.focus();
+                return;
+            }
+
+            // Check if address contains a number (house number)
+            if (!/\d/.test(addressField.value)) {
+                alert('Please include a house number in your address.');
+                addressField.focus();
+                return;
+            }
+
+            // Check if contact number is valid Philippine mobile number
+            if (!/^09\d{9}$/.test(contactField.value)) {
+                alert('Please enter a valid Philippine mobile number (11 digits starting with 09).');
+                contactField.focus();
+                return;
+            }
+
+            // Enter selection mode
+            selectionMode = true;
+            checkboxes.forEach(checkbox => {
+                checkbox.style.display = 'block';
+            });
+            checkoutBtn.textContent = 'Checkout Selected Items';
+            checkoutBtn.type = 'submit';
+        }
+    });
+
+    checkoutSingleBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Validate required fields before individual checkout
+            const nameField = document.getElementById('name');
+            const addressField = document.getElementById('address');
+            const contactField = document.getElementById('contact');
+
+            if (!nameField.value.trim()) {
+                alert('Please enter your full name.');
+                nameField.focus();
+                return;
+            }
+
+            if (!addressField.value.trim()) {
+                alert('Please enter your delivery address.');
+                addressField.focus();
+                return;
+            }
+
+            if (!contactField.value.trim()) {
+                alert('Please enter your contact number.');
+                contactField.focus();
+                return;
+            }
+
+            // Check if address contains a number (house number)
+            if (!/\d/.test(addressField.value)) {
+                alert('Please include a house number in your address.');
+                addressField.focus();
+                return;
+            }
+
+            // Check if contact number is valid Philippine mobile number
+            if (!/^09\d{9}$/.test(contactField.value)) {
+                alert('Please enter a valid Philippine mobile number (11 digits starting with 09).');
+                contactField.focus();
+                return;
+            }
+
+            const cartId = this.getAttribute('data-cart-id');
+            // Set the selected_items to only this item
+            checkboxes.forEach(checkbox => {
+                if (checkbox.value === cartId) {
+                    checkbox.checked = true;
+                } else {
+                    checkbox.checked = false;
+                }
+            });
+            // Submit the form
+            document.getElementById('checkout-form').submit();
+        });
+    });
+
+    removeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirmRemove()) {
+                const cartId = this.getAttribute('data-cart-id');
+                document.getElementById(`remove-form-${cartId}`).submit();
+            }
+        });
+    });
 
     function updateTotal() {
         let total = 0;
         let selectedCount = 0;
-    checkboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-            selectedCount++;
-            const itemDiv = checkbox.closest('.cart-item');
-            const subtotalText = itemDiv.querySelector('p:last-of-type').textContent;
-            const subtotal = parseFloat(subtotalText.split('₱')[1].replace(',', ''));
-            total += subtotal;
-        }
-    });
+        checkboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                selectedCount++;
+                const itemDiv = checkbox.closest('.cart-item');
+                const subtotalText = itemDiv.querySelector('p:last-of-type').textContent;
+                const subtotal = parseFloat(subtotalText.split('₱')[1].replace(',', ''));
+                total += subtotal;
+            }
+        });
         selectedTotal.textContent = `Total: ₱${total.toFixed(2)}`;
-        checkoutBtn.disabled = selectedCount === 0;
-        checkoutBtn.textContent = selectedCount === 0 ? 'Select items to checkout' : `Checkout ${selectedCount} Selected Item${selectedCount > 1 ? 's' : ''}`;
+        if (selectionMode) {
+            checkoutBtn.textContent = selectedCount === 0 ? 'Select items to checkout' : `Checkout ${selectedCount} Selected Item${selectedCount > 1 ? 's' : ''}`;
+        }
     }
 
     checkboxes.forEach(checkbox => {
