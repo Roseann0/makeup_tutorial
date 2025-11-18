@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="section-title">
-    <h2>{{ tutorial.title }}</h2>
+    <h2>{{ tutorial.title }} - Video Tutorial</h2>
     <p>{{ tutorial.description }}</p>
 </div>
 
@@ -15,15 +15,19 @@
     {% endif %}
 </div>
 
-<div class="tutorial-choices">
-    <h3>Choose Your Learning Style</h3>
-    <div class="choice-buttons">
-        <a href="{{ url_for('tutorial_step', tutorial_id=tutorial.id) }}" class="btn btn-primary">Step-by-Step Tutorial</a>
-        <a href="{{ url_for('tutorial_video', tutorial_id=tutorial.id) }}" class="btn btn-secondary">Video Tutorial</a>
+<div class="tutorial-video">
+    <h3>Watch the Video</h3>
+    {% if tutorial.video_url %}
+    <div class="video-container">
+        <iframe width="560" height="315" src="{{ tutorial.video_url }}" frameborder="0" allowfullscreen></iframe>
     </div>
+    {% else %}
+    <p>Video tutorial not available for this tutorial.</p>
+    {% endif %}
 </div>
 
 <div class="tutorial-actions">
+    <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="btn btn-outline">Back to Tutorial Options</a>
     <a href="{{ url_for('tutorial') }}" class="btn btn-outline">Back to Tutorials</a>
 </div>
 {% endblock %}

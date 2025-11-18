@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-title">
+    <h2>{{ tutorial.title }} - Step-by-Step Guide</h2>
+    <p>{{ tutorial.description }}</p>
+</div>
+
+<div class="tutorial-info">
+    <p><strong>Category:</strong> {{ tutorial.category }}</p>
+    {% if tutorial.difficulty %}
+    <p><strong>Difficulty:</strong> {{ tutorial.difficulty }}</p>
+    {% endif %}
+    {% if tutorial.duration %}
+    <p><strong>Duration:</strong> {{ tutorial.duration }} minutes</p>
+    {% endif %}
+</div>
+
+<div class="tutorial-steps">
+    <h3>Step-by-Step Guide</h3>
+    <ol>
+        {% for step in steps %}
+        <li>
+            {{ step }}
+            {% if step_images and step_images[loop.index0] %}
+            <div class="step-image">
+                <img src="{{ step_images[loop.index0] }}" alt="Step {{ loop.index }} image" style="max-width: 300px; margin-top: 10px;">
+            </div>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ol>
+</div>
+
+<div class="tutorial-actions">
+    <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="btn btn-outline">Back to Tutorial Options</a>
+    <a href="{{ url_for('tutorial') }}" class="btn btn-outline">Back to Tutorials</a>
+</div>
+{% endblock %}

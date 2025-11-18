@@ -18,6 +18,16 @@
     </div>
 
     <div class="tutorial-main">
+        {% if selected_category and selected_category != 'All' %}
+        <div class="tutorial-choices">
+            <h3>{{ selected_category }} Tutorials</h3>
+            <p>Choose how you want to learn:</p>
+            <div class="choice-buttons">
+                <a href="{{ url_for('tutorial_step_category', category=selected_category) }}" class="btn btn-primary">Step-by-Step Tutorials</a>
+                <a href="{{ url_for('tutorial_video_category', category=selected_category) }}" class="btn btn-secondary">Video Tutorials</a>
+            </div>
+        </div>
+        {% else %}
         <div class="card-grid">
             {% for tutorial in tutorials %}
             <div class="card">
@@ -31,6 +41,7 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

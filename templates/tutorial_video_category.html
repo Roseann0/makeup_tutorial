@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="section-title">
+    <h2>{{ category }} - Video Tutorials</h2>
+    <p>Watch video tutorials for {{ category }} makeup looks</p>
+</div>
+
+<div class="tutorials-list">
+    {% for tutorial in tutorials %}
+    <div class="tutorial-card">
+        <h3>{{ tutorial.title }}</h3>
+        <p>{{ tutorial.description }}</p>
+        <p><strong>Difficulty:</strong> {{ tutorial.difficulty or 'Not specified' }}</p>
+        <p><strong>Duration:</strong> {{ tutorial.duration or 'Not specified' }} minutes</p>
+        {% if tutorial.video_url %}
+        <a href="{{ url_for('tutorial_video', tutorial_id=tutorial.id) }}" class="btn btn-secondary">Watch Video Tutorial</a>
+        {% else %}
+        <p class="no-video">Video not available</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<div class="tutorial-actions">
+    <a href="{{ url_for('tutorial_detail', tutorial_id=tutorials[0].id if tutorials else 0) }}" class="btn btn-outline">Back to Makeup Tutorial Page</a>
+</div>
+{% endblock %}

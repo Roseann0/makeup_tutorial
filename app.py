@@ -220,8 +220,33 @@ def tutorial_detail(tutorial_id):
     history = History(user_id=session['user_id'], action=f"Viewed tutorial: {tutorial.title}", tutorial_type="Tutorial")
     db.session.add(history)
     db.session.commit()
+    return render_template('tutorial_detail.html', tutorial=tutorial)
+
+@app.route('/tutorial/<int:tutorial_id>/step')
+@login_required
+def tutorial_step(tutorial_id):
+    tutorial = Tutorial.query.get_or_404(tutorial_id)
     steps = json.loads(tutorial.steps) if tutorial.steps.startswith('[') else tutorial.steps.split(',')
-    return render_template('tutorial_detail.html', tutorial=tutorial, steps=steps)
+    step_images = json.loads(tutorial.step_images) if tutorial.step_images else []
+    return render_template('tutorial_step.html', tutorial=tutorial, steps=steps, step_images=step_images)
+
+@app.route('/tutorial/<int:tutorial_id>/video')
+@login_required
+def tutorial_video(tutorial_id):
+    tutorial = Tutorial.query.get_or_404(tutorial_id)
+    return render_template('tutorial_video.html', tutorial=tutorial)
+
+@app.route('/tutorial/step/<category>')
+@login_required
+def tutorial_step_category(category):
+    tutorials = Tutorial.query.filter_by(category=category).all()
+    return render_template('tutorial_step_category.html', tutorials=tutorials, category=category)
+
+@app.route('/tutorial/video/<category>')
+@login_required
+def tutorial_video_category(category):
+    tutorials = Tutorial.query.filter_by(category=category).all()
+    return render_template('tutorial_video_category.html', tutorials=tutorials, category=category)
 
 # ---------------- SHOP ----------------
 @app.route('/shop')
