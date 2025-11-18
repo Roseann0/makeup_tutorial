@@ -8,15 +8,20 @@
 <div class="tutorial-detail">
     <div class="tutorial-info">
         <p><strong>Category:</strong> {{ tutorial.category }}</p>
-        <p><strong>Difficulty:</strong> {{ tutorial.difficulty }}</p>
-        <p><strong>Duration:</strong> {{ tutorial.duration }} minutes</p>
     </div>
 
     <div class="tutorial-steps">
         <h3>Step-by-Step Guide</h3>
         <ol>
             {% for step in steps %}
-            <li>{{ step }}</li>
+            <li>
+                {{ step }}
+                {% if step_images and step_images[loop.index0] %}
+                <div class="step-image">
+                    <img src="{{ step_images[loop.index0] }}" alt="Step {{ loop.index }} image" style="max-width: 300px; margin-top: 10px;">
+                </div>
+                {% endif %}
+            </li>
             {% endfor %}
         </ol>
     </div>

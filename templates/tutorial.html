@@ -26,8 +26,6 @@
                     <h3>{{ tutorial.title }}</h3>
                     <p>{{ tutorial.description }}</p>
                     <p><strong>Category:</strong> {{ tutorial.category }}</p>
-                    <p><strong>Difficulty:</strong> {{ tutorial.difficulty }}</p>
-                    <p><strong>Duration:</strong> {{ tutorial.duration }} minutes</p>
                     <a href="{{ url_for('tutorial_detail', tutorial_id=tutorial.id) }}" class="btn btn-outline">View Tutorial</a>
                 </div>
             </div>

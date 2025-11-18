@@ -16,8 +16,13 @@
                     <h3>{{ item.product.name }}</h3>
                     <p>{{ item.product.description }}</p>
                     <p><strong>Price:</strong> ₱{{ "%.2f"|format(item.product.price) }}</p>
-                    <p><strong>Quantity:</strong> {{ item.quantity }}</p>
-                    <p><strong>Subtotal:</strong> ₱{{ "%.2f"|format(item.product.price * item.quantity) }}</p>
+                    <div class="quantity-control">
+                        <label><strong>Quantity:</strong></label>
+                        <button type="button" class="qty-btn" data-action="decrease" data-cart-id="{{ item.id }}">-</button>
+                        <input type="number" class="qty-input" value="{{ item.quantity }}" min="1" max="99" data-cart-id="{{ item.id }}">
+                        <button type="button" class="qty-btn" data-action="increase" data-cart-id="{{ item.id }}">+</button>
+                    </div>
+                    <p><strong>Subtotal:</strong> <span class="subtotal" data-cart-id="{{ item.id }}" data-price="{{ item.product.price }}">₱{{ "%.2f"|format(item.product.price * item.quantity) }}</span></p>
                 </div>
                 <div class="cart-item-actions">
                     <button type="button" class="btn btn-outline remove-btn" data-cart-id="{{ item.id }}">Remove</button>
@@ -303,6 +308,70 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Quantity change handlers
+    const qtyBtns = document.querySelectorAll('.qty-btn');
+    const qtyInputs = document.querySelectorAll('.qty-input');
+
+    qtyBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const cartId = this.getAttribute('data-cart-id');
+            const action = this.getAttribute('data-action');
+            const input = document.querySelector(`.qty-input[data-cart-id="${cartId}"]`);
+            let currentQty = parseInt(input.value);
+
+            if (action === 'increase' && currentQty < 99) {
+                currentQty++;
+            } else if (action === 'decrease' && currentQty > 1) {
+                currentQty--;
+            }
+
+            input.value = currentQty;
+            updateSubtotal(cartId, currentQty);
+            updateQuantity(cartId, currentQty);
+        });
+    });
+
+    qtyInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const cartId = this.getAttribute('data-cart-id');
+            let qty = parseInt(this.value);
+            if (isNaN(qty) || qty < 1) qty = 1;
+            if (qty > 99) qty = 99;
+            this.value = qty;
+            updateSubtotal(cartId, qty);
+            updateQuantity(cartId, qty);
+        });
+    });
+
+    function updateSubtotal(cartId, qty) {
+        const subtotalSpan = document.querySelector(`.subtotal[data-cart-id="${cartId}"]`);
+        const price = parseFloat(subtotalSpan.getAttribute('data-price') || subtotalSpan.textContent.split('₱')[1].replace(',', ''));
+        subtotalSpan.setAttribute('data-price', price); // Store price for future use
+        const subtotal = price * qty;
+        subtotalSpan.textContent = `₱${subtotal.toFixed(2)}`;
+        updateTotal();
+    }
+
+    function updateQuantity(cartId, qty) {
+        fetch(`/update_cart_quantity/${cartId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ quantity: qty })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                alert('Failed to update quantity. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error updating quantity:', error);
+            alert('Error updating quantity. Please refresh the page.');
+        });
+    }
+
     function updateTotal() {
         let total = 0;
         let selectedCount = 0;
@@ -310,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (checkbox.checked) {
                 selectedCount++;
                 const itemDiv = checkbox.closest('.cart-item');
-                const subtotalText = itemDiv.querySelector('p:last-of-type').textContent;
+                const subtotalText = itemDiv.querySelector('.subtotal').textContent;
                 const subtotal = parseFloat(subtotalText.split('₱')[1].replace(',', ''));
                 total += subtotal;
             }

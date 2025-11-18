@@ -5,14 +5,12 @@ import time
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_mail import Mail
 from dotenv import load_dotenv
 from functools import wraps
 
 app = Flask(__name__)
 
 from model import db, History, Product, Tutorial, User, Cart, Purchase, OTP
-from otp import generate_otp, send_otp_email, store_otp_in_db, verify_otp_from_db
 
 # ----------------------------------------------------------------------
 # Load environment variables from .env
@@ -30,6 +28,17 @@ app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key_here')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://rose:makeuptutorial@127.0.0.1/makeup_tutorial'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
+
+# ----------------------------------------------------------------------
+# Flask-Mail Configuration
+# ----------------------------------------------------------------------
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+from flask_mail import Mail
+mail = Mail(app)
 
 EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+$'
 PASSWORD_REGEX = r'^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$'
@@ -200,7 +209,7 @@ def tutorial():
         tutorials = Tutorial.query.all()
     else:
         tutorials = Tutorial.query.filter_by(category=category).all()
-    categories = ['All', 'Glam Look', 'No Makeup Look', 'Latina Makeup']
+    categories = ['All', 'Glam Makeup', 'No Makeup Look', 'Latina Makeup', 'Douyin Makeup']
     return render_template('tutorial.html', tutorials=tutorials, categories=categories, selected_category=category)
 
 @app.route('/tutorial/<int:tutorial_id>')
@@ -260,6 +269,24 @@ def remove_from_cart(cart_id):
     flash('Item removed from cart.', 'success')
     return redirect(url_for('cart'))
 
+@app.route('/update_cart_quantity/<int:cart_id>', methods=['POST'])
+@login_required
+def update_cart_quantity(cart_id):
+    cart_item = Cart.query.get_or_404(cart_id)
+    if cart_item.user_id != session['user_id']:
+        return jsonify({'success': False, 'message': 'Unauthorized'}), 403
+
+    data = request.get_json()
+    quantity = data.get('quantity', 1)
+
+    if not isinstance(quantity, int) or quantity < 1 or quantity > 99:
+        return jsonify({'success': False, 'message': 'Invalid quantity'}), 400
+
+    cart_item.quantity = quantity
+    db.session.commit()
+
+    return jsonify({'success': True})
+
 # ---------------- CHECKOUT & PAYMENT ----------------
 @app.route('/checkout', methods=['POST'])
 @login_required
@@ -275,7 +302,7 @@ def checkout():
 
     # Get selected cart items
     cart_items = Cart.query.filter(
-        Cart.id.in_(selected_item_ids), 
+        Cart.id.in_(selected_item_ids),
         Cart.user_id == session['user_id']
     ).all()
 
@@ -323,10 +350,10 @@ def payment(order_id):
     if not order_data:
         flash('Order not found or expired.', 'danger')
         return redirect(url_for('cart'))
-    
+
     if request.method == 'POST':
         payment_method = request.form.get('payment_method')
-        
+
         if payment_method == 'GCash':
             # Process GCash payment
             payment_response = initiate_gcash_payment(
@@ -345,7 +372,7 @@ def payment(order_id):
             else:
                 flash('Failed to initiate GCash payment.', 'danger')
                 return redirect(url_for('payment', order_id=order_id))
-                
+
         elif payment_method == 'PayMaya':
             # Process PayMaya payment
             payment_response = initiate_paymaya_payment(
@@ -353,3 +380,109 @@ def payment(order_id):
                 order_id=order_id,
                 description=f"Order {order_id}"
             )
+            if payment_response['status'] == 'success':
+                # Store payment info in session
+                session[f'payment_{order_id}'] = {
+                    'payment_id': payment_response['payment_id'],
+                    'method': 'PayMaya',
+                    'status': 'pending'
+                }
+                return redirect(payment_response['redirect_url'])
+            else:
+                flash('Failed to initiate PayMaya payment.', 'danger')
+                return redirect(url_for('payment', order_id=order_id))
+
+    return render_template('payment.html', order_data=order_data, order_id=order_id)
+
+# ---------------- ADMIN ----------------
+@app.route('/admin')
+@admin_required
+def admin():
+    users = User.query.all()
+    products = Product.query.all()
+    tutorials = Tutorial.query.all()
+    purchases = Purchase.query.all()
+    histories = History.query.order_by(History.created_at.desc()).limit(10).all()
+    return render_template('admin.html', users=users, products=products, tutorials=tutorials, purchases=purchases, histories=histories)
+
+@app.route('/admin/users')
+@admin_required
+def admin_users():
+    users = User.query.all()
+    return render_template('admin_users.html', users=users)
+
+@app.route('/admin/products')
+@admin_required
+def admin_products():
+    products = Product.query.all()
+    return render_template('admin_products.html', products=products)
+
+@app.route('/admin/tutorials')
+@admin_required
+def admin_tutorials():
+    tutorials = Tutorial.query.all()
+    return render_template('admin_tutorials.html', tutorials=tutorials)
+
+# ---------------- DESCRIPTION ----------------
+@app.route('/description')
+@login_required
+def description():
+    products = Product.query.all()
+    suggestions = {
+        'tones': ['Fair', 'Medium', 'Tan', 'Deep', 'Ebony'],
+        'tips': [
+            'Always cleanse your skin before applying makeup.',
+            'Use a primer to create a smooth base.',
+            'Match foundation to your skin tone.',
+            'Set your makeup with a setting powder.',
+            'Finish with a setting spray for long-lasting wear.'
+        ]
+    }
+    return render_template('description.html', products=products, suggestions=suggestions)
+
+# ---------------- PROFILE ----------------
+@app.route('/profile')
+@login_required
+def profile():
+    user = User.query.get(session['user_id'])
+    history = History.query.filter_by(user_id=session['user_id']).order_by(History.created_at.desc()).limit(10).all()
+    purchases = Purchase.query.filter_by(user_id=session['user_id']).order_by(Purchase.created_at.desc()).all()
+    return render_template('profile.html', user=user, history=history, purchases=purchases)
+
+@app.route('/delete_history/<int:history_id>', methods=['POST'])
+@login_required
+def delete_history(history_id):
+    history_item = History.query.get_or_404(history_id)
+    if history_item.user_id != session['user_id']:
+        flash('Unauthorized action.', 'danger')
+        return redirect(url_for('profile'))
+
+    db.session.delete(history_item)
+    db.session.commit()
+    flash('Activity deleted successfully.', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/rate_purchase/<int:purchase_id>', methods=['POST'])
+@login_required
+def rate_purchase(purchase_id):
+    purchase = Purchase.query.get_or_404(purchase_id)
+    if purchase.user_id != session['user_id']:
+        flash('Unauthorized action.', 'danger')
+        return redirect(url_for('profile'))
+
+    rating = request.form.get('rating')
+    received_status = request.form.get('received_status')
+
+    if rating is not None:
+        purchase.rating = int(rating)
+    if received_status == 'received':
+        purchase.received = True
+    elif received_status == 'not_received':
+        purchase.received = False
+
+    db.session.commit()
+    flash('Purchase updated successfully.', 'success')
+    return redirect(url_for('profile'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
