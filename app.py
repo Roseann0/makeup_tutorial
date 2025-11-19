@@ -1,6 +1,5 @@
 import os
 import re
-import json
 import time
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
