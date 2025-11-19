@@ -46,6 +46,7 @@
                     </div>
                     <div class="card-body">
                         <form method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" name="payment_method" value="GCash" id="gcash" required>
                                 <label class="form-check-label" for="gcash">

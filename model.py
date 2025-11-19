@@ -51,7 +51,7 @@ class History(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Purchase(db.Model):
-
+    __tablename__ = 'purchase'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
@@ -75,10 +75,4 @@ class Cart(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=1)
     added_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class OTP(db.Model):
-    __tablename__ = 'otp'
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), nullable=False)
-    otp_code = db.Column(db.String(6), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    used = db.Column(db.Boolean, default=False)
+# OTP Model has been removed - OTPs are now stored in session instead of database

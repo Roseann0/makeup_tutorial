@@ -17,6 +17,7 @@
                 <p><strong>Category:</strong> {{ product.category }}</p>
                 <p><strong>Price:</strong> ₱{{ "%.2f"|format(product.price) }}</p>
                 <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" class="buy-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <label for="quantity-{{ product.id }}">Quantity:</label>
                     <input type="number" id="quantity-{{ product.id }}" name="quantity" value="0" min="1" max="10" required>
                     <button type="submit" class="btn btn-primary">Add to Cart</button>
