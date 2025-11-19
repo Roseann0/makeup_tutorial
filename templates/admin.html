@@ -95,7 +95,7 @@
                                 <td>{{ purchase.user.name }}</td>
                                 <td>{{ purchase.product.name }}</td>
                                 <td>{{ purchase.quantity }}</td>
-                                <td>${{ "%.2f"|format(purchase.total_price) }}</td>
+                                <td>₱{{ "%.2f"|format(purchase.total_price) }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -114,7 +114,9 @@
                             <tr>
                                 <th>User</th>
                                 <th>Action</th>
+                                <th>Date</th>
                                 <th>Time</th>
+                            
                             </tr>
                         </thead>
                         <tbody>
@@ -122,7 +124,8 @@
                             <tr>
                                 <td>{{ history.user.name }}</td>
                                 <td>{{ history.action }}</td>
-                                <td>{{ history.created_at.strftime('%m/%d %H:%M') }}</td>
+                                <td>{{ history.created_at.strftime('%m/%d') }}</td>
+                                <td>{{ history.created_at.strftime('%H:%M') }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>

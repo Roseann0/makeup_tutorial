@@ -46,7 +46,7 @@
                 </div>
                 <div class="form-group">
                     <label for="contact">Contact Number:</label>
-                    <input type="tel" id="contact" name="contact" placeholder="09123456789" required pattern="^09\d{9}$" title="Please enter a valid Philippine mobile number (11 digits starting with 09)">
+                    <input type="tel" id="contact" name="contact" placeholder="09123456789" required pattern="^09\d{9}₱" title="Please enter a valid Philippine mobile number (11 digits starting with 09)">
                 </div>
             </div>
             <button type="button" class="btn btn-primary" id="checkout-btn">Select Items to Checkout</button>
@@ -180,7 +180,7 @@ function validateForm() {
     }
 
     // Check if contact number is valid Philippine mobile number
-    if (!/^09\d{9}$/.test(contactField.value)) {
+    if (!/^09\d{9}₱/.test(contactField.value)) {
         alert('Please enter a valid Philippine mobile number (11 digits starting with 09).');
         contactField.focus();
         return false;
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Check if contact number is valid Philippine mobile number
-            if (!/^09\d{9}$/.test(contactField.value)) {
+            if (!/^09\d{9}₱/.test(contactField.value)) {
                 alert('Please enter a valid Philippine mobile number (11 digits starting with 09).');
                 contactField.focus();
                 return;
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Check if contact number is valid Philippine mobile number
-            if (!/^09\d{9}$/.test(contactField.value)) {
+            if (!/^09\d{9}₱/.test(contactField.value)) {
                 alert('Please enter a valid Philippine mobile number (11 digits starting with 09).');
                 contactField.focus();
                 return;
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             if (confirmRemove()) {
                 const cartId = this.getAttribute('data-cart-id');
-                document.getElementById(`remove-form-${cartId}`).submit();
+                document.getElementById(`remove-form-₱{cartId}`).submit();
             }
         });
     });
@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', function() {
             const cartId = this.getAttribute('data-cart-id');
             const action = this.getAttribute('data-action');
-            const input = document.querySelector(`.qty-input[data-cart-id="${cartId}"]`);
+            const input = document.querySelector(`.qty-input[data-cart-id="₱{cartId}"]`);
             let currentQty = parseInt(input.value);
 
             if (action === 'increase' && currentQty < 99) {
@@ -344,16 +344,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateSubtotal(cartId, qty) {
-        const subtotalSpan = document.querySelector(`.subtotal[data-cart-id="${cartId}"]`);
+        const subtotalSpan = document.querySelector(`.subtotal[data-cart-id="₱{cartId}"]`);
         const price = parseFloat(subtotalSpan.getAttribute('data-price') || subtotalSpan.textContent.split('₱')[1].replace(',', ''));
         subtotalSpan.setAttribute('data-price', price); // Store price for future use
         const subtotal = price * qty;
-        subtotalSpan.textContent = `₱${subtotal.toFixed(2)}`;
+        subtotalSpan.textContent = `₱{subtotal.toFixed(2)}`;
         updateTotal();
     }
 
     function updateQuantity(cartId, qty) {
-        fetch(`/update_cart_quantity/${cartId}`, {
+        fetch(`/update_cart_quantity/₱{cartId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -384,9 +384,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 total += subtotal;
             }
         });
-        selectedTotal.textContent = `Total: ₱${total.toFixed(2)}`;
+        selectedTotal.textContent = `Total: ₱{total.toFixed(2)}`;
         if (selectionMode) {
-            checkoutBtn.textContent = selectedCount === 0 ? 'Select items to checkout' : `Checkout ${selectedCount} Selected Item${selectedCount > 1 ? 's' : ''}`;
+            checkoutBtn.textContent = selectedCount === 0 ? 'Select items to checkout' : `Checkout ₱{selectedCount} Selected Item₱{selectedCount > 1 ? 's' : ''}`;
         }
     }
 

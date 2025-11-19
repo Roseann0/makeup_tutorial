@@ -25,9 +25,7 @@
                             <th>ID</th>
                             <th>Title</th>
                             <th>Category</th>
-                            <th>Difficulty</th>
-                            <th>Duration</th>
-                            <th>Author</th>
+                            <th>Created At</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -37,9 +35,7 @@
                             <td>{{ tutorial.id }}</td>
                             <td>{{ tutorial.title }}</td>
                             <td>{{ tutorial.category }}</td>
-                            <td>{{ tutorial.difficulty }}</td>
-                            <td>{{ tutorial.duration }} min</td>
-                            <td>{{ tutorial.author.name }}</td>
+                            <td>{{ tutorial.created_at.strftime('%Y-%m-%d %H:%M') if tutorial.created_at else 'N/A' }}</td>
                             <td>
                                 <button class="btn btn-sm btn-warning" onclick="editTutorial({{ tutorial.id }}, '{{ tutorial.title }}', '{{ tutorial.description }}', '{{ tutorial.category }}', '{{ tutorial.difficulty }}', {{ tutorial.duration }}, '{{ tutorial.steps }}')">Edit</button>
                                 <form method="POST" action="{{ url_for('delete_tutorial', tutorial_id=tutorial.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this tutorial?')">

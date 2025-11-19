@@ -25,7 +25,15 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     color: var(--text-color);
-    background-color: #f5f7fb;
+    background-color: var(--light-color);
+}
+
+.admin-page {
+    background-image: url('/css/bg.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
 a {

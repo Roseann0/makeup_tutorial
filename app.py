@@ -40,8 +40,8 @@ app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
 from flask_mail import Mail
 mail = Mail(app)
 
-EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-PASSWORD_REGEX = r'^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$'
+EMAIL_REGEX = r'^[\w\.-]+@[\w\.-]+\.\w+₱'
+PASSWORD_REGEX = r'^(?=.*[!@#₱%^&*(),.?":{}|<>]).{8,}₱'
 
 with app.app_context():
     db.create_all()
@@ -442,15 +442,129 @@ def admin_products():
     products = Product.query.all()
     return render_template('admin_products.html', products=products)
 
+@app.route('/add_product', methods=['POST'])
+@admin_required
+def add_product():
+    name = request.form.get('name')
+    description = request.form.get('description')
+    price = float(request.form.get('price'))
+    category = request.form.get('category')
+    image_url = request.form.get('image_url')
+
+    new_product = Product(name=name, description=description, price=price, category=category, image_url=image_url)
+    db.session.add(new_product)
+    db.session.commit()
+
+    flash('Product added successfully.', 'success')
+    return redirect(url_for('admin_products'))
+
+@app.route('/edit_product', methods=['POST'])
+@admin_required
+def edit_product():
+    product_id = request.form.get('product_id')
+    product = Product.query.get_or_404(product_id)
+
+    product.name = request.form.get('name')
+    product.description = request.form.get('description')
+    product.price = float(request.form.get('price'))
+    product.category = request.form.get('category')
+    product.image_url = request.form.get('image_url')
+
+    db.session.commit()
+
+    flash('Product updated successfully.', 'success')
+    return redirect(url_for('admin_products'))
+
+@app.route('/delete_product/<int:product_id>', methods=['POST'])
+@admin_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+
+    flash('Product deleted successfully.', 'success')
+    return redirect(url_for('admin_products'))
+
 @app.route('/admin/tutorials')
 @admin_required
 def admin_tutorials():
     tutorials = Tutorial.query.all()
     return render_template('admin_tutorials.html', tutorials=tutorials)
 
-# ---------------- DESCRIPTION ----------------
+@app.route('/add_tutorial', methods=['POST'])
+@admin_required
+def add_tutorial():
+    title = request.form.get('title')
+    description = request.form.get('description')
+    category = request.form.get('category')
+    difficulty = request.form.get('difficulty')
+    duration = int(request.form.get('duration'))
+    steps = request.form.get('steps')
+
+    new_tutorial = Tutorial(
+        title=title,
+        description=description,
+        category=category,
+        difficulty=difficulty,
+        duration=duration,
+        steps=steps,
+        author_id=session['user_id']
+    )
+    db.session.add(new_tutorial)
+    db.session.commit()
+
+    flash('Tutorial added successfully.', 'success')
+    return redirect(url_for('admin_tutorials'))
+
+@app.route('/edit_tutorial', methods=['POST'])
+@admin_required
+def edit_tutorial():
+    tutorial_id = request.form.get('tutorial_id')
+    tutorial = Tutorial.query.get_or_404(tutorial_id)
+
+    tutorial.title = request.form.get('title')
+    tutorial.description = request.form.get('description')
+    tutorial.category = request.form.get('category')
+    tutorial.difficulty = request.form.get('difficulty')
+    tutorial.duration = int(request.form.get('duration'))
+    tutorial.steps = request.form.get('steps')
+
+    db.session.commit()
+
+    flash('Tutorial updated successfully.', 'success')
+    return redirect(url_for('admin_tutorials'))
+
+@app.route('/delete_tutorial/<int:tutorial_id>', methods=['POST'])
+@admin_required
+def delete_tutorial(tutorial_id):
+    tutorial = Tutorial.query.get_or_404(tutorial_id)
+    db.session.delete(tutorial)
+    db.session.commit()
+
+    flash('Tutorial deleted successfully.', 'success')
+    return redirect(url_for('admin_tutorials'))
+
+@app.route('/toggle_admin/<int:user_id>', methods=['POST'])
+@admin_required
+def toggle_admin(user_id):
+    user = User.query.get_or_404(user_id)
+    user.is_admin = not user.is_admin
+    db.session.commit()
+    flash('Admin status updated.', 'success')
+    return redirect(url_for('admin_users'))
+
+@app.route('/edit_user', methods=['POST'])
+@admin_required
+def edit_user():
+    user_id = request.form.get('user_id')
+    user = User.query.get_or_404(user_id)
+    user.name = request.form.get('name')
+    user.email = request.form.get('email')
+    db.session.commit()
+    flash('User updated successfully.', 'success')
+    return redirect(url_for('admin_users'))
+
 @app.route('/description')
-@login_required
 def description():
     products = Product.query.all()
     suggestions = {
